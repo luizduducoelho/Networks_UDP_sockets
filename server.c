@@ -25,13 +25,17 @@ void extract_ack(char* packet, char* ack){
 	ack[1] = '\0';
 }
 
-char checksum(char* s){
+char checksum(char* s, int total_lido ){
 	char sum = 1;
-	while (*s != 0)
+	int i = 0;
+
+	while (i < total_lido)
 	{	
 		sum += *s;
 		s++;
 		printf("Checksummmmmmmmmmmmm: %c %d\n    ",sum, sum);   //, %d", sum, atoi(sum));
+		i++;
+		printf("i < total_lido: %d < %d \n", i, total_lido);
 	}
 	return sum;
 }
@@ -93,7 +97,7 @@ int main(int argc, char * argv[]){
 		sum_recebido = extract_checksum(pacote_com_nome);
 		extract_packet(pacote_com_nome, ack_recebido, sum_recebido, nome_do_arquivo);
 		printf("Nome recebido: %s \n", nome_do_arquivo);
-		sum = checksum(nome_do_arquivo);
+		sum = checksum(nome_do_arquivo, strlen(nome_do_arquivo));
 		printf("Sum : %c %d \n", sum, sum);
 		printf("sum_recebido : %c %d \n", sum_recebido, sum_recebido);
 
@@ -129,7 +133,8 @@ int main(int argc, char * argv[]){
 	//rotina stop-and-wait
 	do{
 		total_lido = fread(dados, 1, tam_dados, arq);
-		sum = checksum(dados);
+		sum = checksum(dados, total_lido);
+		printf("DADOS :%s, sizeof: %zu \n", dados, sizeof(dados));
 		printf("SUM before create, = %d \n", sum );
 		create_packet(ack, dados, sum, buffer, total_lido);
 		printf("buffer:%s\n",buffer);
@@ -152,6 +157,7 @@ int main(int argc, char * argv[]){
 			}
 		else if(ack[0]=='1'){
 			do {
+				printf("Enviando um buffer: %s, sizeof: %zu, strlen: %zu \n", buffer, sizeof(buffer), strlen(buffer));
 				tp_sendto(udp_socket, buffer, total_lido + tam_cabecalho, &cliente); // Manda pacote de dados 1
 				printf("Aguardando ACK = %s ....... \n",ack);
 				count = tp_recvfrom(udp_socket, ack_recebido, sizeof(ack_recebido), &cliente);  // Espera ACK = 1
