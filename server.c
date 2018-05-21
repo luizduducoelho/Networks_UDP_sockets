@@ -136,11 +136,11 @@ int main(int argc, char * argv[]){
 	do{
 		total_lido = fread(dados, 1, tam_dados, arq);
 		sum = checksum(dados, total_lido);
-		printf("DADOS :%s, sizeof: %zu \n", dados, sizeof(dados));
-		printf("SUM before create, = %d \n", sum );
+		//printf("DADOS :%s, sizeof: %zu \n", dados, sizeof(dados));
+		//printf("SUM before create, = %d \n", sum );
 		create_packet(ack, dados, sum, buffer, total_lido);
-		printf("buffer:%s\n",buffer);
-		printf("ack:%s\n", ack);
+		//printf("buffer:%s\n",buffer);
+		//printf("ack:%s\n", ack);
 
 		//if (total_lido == 0){  // Descomentar essa parte para testar a temporizacao do cliente
 		//	exit(1);

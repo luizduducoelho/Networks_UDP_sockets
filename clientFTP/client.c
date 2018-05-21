@@ -139,8 +139,8 @@ int main(int argc, char **argv){
 	sum = checksum(nome_do_arquivo, strlen(nome_do_arquivo));
 	
 	create_packet(ack, nome_do_arquivo, sum, nome_do_arquivo_pkg);
-	printf("Sum : %c %d \n", sum, sum);
-	printf("Nome de nome_do_arquivo_pkg: %s\n, tamanho: %zu, strlen: %zu \n", nome_do_arquivo_pkg, sizeof(nome_do_arquivo_pkg), strlen(nome_do_arquivo_pkg));
+	//printf("Sum : %c %d \n", sum, sum);
+	//printf("Nome de nome_do_arquivo_pkg: %s\n, tamanho: %zu, strlen: %zu \n", nome_do_arquivo_pkg, sizeof(nome_do_arquivo_pkg), strlen(nome_do_arquivo_pkg));
 
 	// Realiza temporizacao espara 1s
 	struct timeval tv;
@@ -196,16 +196,16 @@ int main(int argc, char **argv){
 					printf("Aguardando ACK=0, ack_recebido=%s \n", ack_recebido);
 					sum_recebido = extract_checksum(buffer);
 					extract_packet(buffer, ack_recebido, dados, total_recebido);
-					printf("DADOS :%s, sizeof: %zu \n", dados, sizeof(dados));
+					//printf("DADOS :%s, sizeof: %zu \n", dados, sizeof(dados));
 					sum = checksum(dados, total_recebido-tam_cabecalho);
 				
 					if (sum != sum_recebido){
 						printf("WRONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNG \n");
-						printf("SUM = %d, SUM_RECEBIDO = %d \n", sum, sum_recebido);
+						//printf("SUM = %d, SUM_RECEBIDO = %d \n", sum, sum_recebido);
 					}
 					if ((strcmp(ack_recebido, "0") == 0) && (sum == sum_recebido)){
 						tp_sendto(udp_socket, "0", sizeof("0"), &server); // Manda ACK = 0
-						printf("Recebi corretamente : %s \n", buffer);
+						//printf("Recebi corretamente : %s \n", buffer);
 						timeouts = 0;
 					}
 				}
@@ -229,12 +229,12 @@ int main(int argc, char **argv){
 				
 				if (sum != sum_recebido){
 					printf("WRONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNG \n");
-					printf("SUM = %d, SUM_RECEBIDO = %d \n", sum, sum_recebido);
-					printf("DADOS DO ERRADO: %s \n", dados);
+					//printf("SUM = %d, SUM_RECEBIDO = %d \n", sum, sum_recebido);
+					//printf("DADOS DO ERRADO: %s \n", dados);
 				}
 				if ( (strcmp(ack_recebido, "1") == 0) && (sum == sum_recebido) ){
 					tp_sendto(udp_socket, "1", sizeof("1"), &server); // Manda ACK = 1
-					printf("Recebi corretamente : %s \n", buffer);
+					//printf("Recebi corretamente : %s \n", buffer);
 				}
 			}
 			else{
@@ -245,7 +245,7 @@ int main(int argc, char **argv){
 		}
 
 		extract_packet(buffer, ack_recebido, dados, total_recebido);
-		printf("DADOS: %s \n", dados);
+		//printf("DADOS: %s \n", dados);
 		fflush(arq);
 		write_n = bytes_to_write(total_recebido, tam_cabecalho);
 		total_gravado = fwrite(dados, 1, write_n, arq);
