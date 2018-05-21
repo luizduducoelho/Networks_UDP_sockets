@@ -59,9 +59,9 @@ char checksum(char* s, int total_lido ){
 	{	
 		sum += *s;
 		s++;
-		printf("Checksummmmmmmmmmmmm: %c %d\n    ",sum, sum);   //, %d", sum, atoi(sum));
+		//printf("Checksummmmmmmmmmmmm: %c %d\n    ",sum, sum);   //, %d", sum, atoi(sum));
 		i++;
-		printf("i < total_lido: %d < %d \n", i, total_lido);
+		//printf("i < total_lido: %d < %d \n", i, total_lido);
 	}
 	return sum;
 }
@@ -134,15 +134,15 @@ int main(int argc, char **argv){
 	//strcpy(nome_do_arquivo_pkg, "0");
 	//strcat(nome_do_arquivo_pkg, nome_do_arquivo);
 	char ack[] = "0";
-	char sum;
-	char sum_recebido;
+	char sum = '\0';
+	char sum_recebido = '\0';
 	sum = checksum(nome_do_arquivo, strlen(nome_do_arquivo));
 	
 	create_packet(ack, nome_do_arquivo, sum, nome_do_arquivo_pkg);
 	printf("Sum : %c %d \n", sum, sum);
 	printf("Nome de nome_do_arquivo_pkg: %s\n, tamanho: %zu, strlen: %zu \n", nome_do_arquivo_pkg, sizeof(nome_do_arquivo_pkg), strlen(nome_do_arquivo_pkg));
 
-	// Realiza temporizacao para 1s
+	// Realiza temporizacao espara 1s
 	struct timeval tv;
 	tv.tv_sec = 1;
 	tv.tv_usec = 0;
@@ -151,6 +151,7 @@ int main(int argc, char **argv){
 
 	// Envia nome do arquivo
 	int total_recebido;
+	int sent;
 	char buffer[tam_buffer];
 	do {
 		printf("Envia nome_do_arquivo ......\n");
@@ -180,7 +181,7 @@ int main(int argc, char **argv){
 	int total_gravado; //recebe o numero em bytes do que foi gravado no arquivo em cada iteracao
 	int tam_arquivo = 0; 
 	char ack_esperado[] = "0";
-	char ack_recebido[2];
+	char ack_recebido[2] = { 0 };
 	int max_timeouts = 10;
 	int timeouts = 0;
 	int write_n;
@@ -197,17 +198,19 @@ int main(int argc, char **argv){
 					extract_packet(buffer, ack_recebido, dados, total_recebido);
 					printf("DADOS :%s, sizeof: %zu \n", dados, sizeof(dados));
 					sum = checksum(dados, total_recebido-tam_cabecalho);
-				}
-				if (sum != sum_recebido){
-					printf("WRONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNG \n");
-					printf("SUM = %d, SUM_RECEBIDO = %d \n", sum, sum_recebido);
-				}
-				if ((strcmp(ack_recebido, "0") == 0) && (sum == sum_recebido)){
-					tp_sendto(udp_socket, "0", sizeof("0"), &server); // Manda ACK = 0
-					printf("Recebi corretamente : %s \n", buffer);
-					timeouts = 0;
+				
+					if (sum != sum_recebido){
+						printf("WRONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNG \n");
+						printf("SUM = %d, SUM_RECEBIDO = %d \n", sum, sum_recebido);
+					}
+					if ((strcmp(ack_recebido, "0") == 0) && (sum == sum_recebido)){
+						tp_sendto(udp_socket, "0", sizeof("0"), &server); // Manda ACK = 0
+						printf("Recebi corretamente : %s \n", buffer);
+						timeouts = 0;
+					}
 				}
 				else{
+					sent = tp_sendto(udp_socket, "1", sizeof("1"), &server); // Manda ACK = 1
 					timeouts++;
 				}
 
@@ -223,17 +226,19 @@ int main(int argc, char **argv){
 					sum_recebido = extract_checksum(buffer);
 					extract_packet(buffer, ack_recebido, dados, total_recebido);
 					sum = checksum(dados, total_recebido-tam_cabecalho);
+				
+				if (sum != sum_recebido){
+					printf("WRONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNG \n");
+					printf("SUM = %d, SUM_RECEBIDO = %d \n", sum, sum_recebido);
+					printf("DADOS DO ERRADO: %s \n", dados);
 				}
-			if (sum != sum_recebido){
-				printf("WRONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNG \n");
-				printf("SUM = %d, SUM_RECEBIDO = %d \n", sum, sum_recebido);
-				printf("DADOS DO ERRADO: %s \n", dados);
-			}
-			if ( (strcmp(ack_recebido, "1") == 0) && (sum == sum_recebido) ){
-				tp_sendto(udp_socket, "1", sizeof("1"), &server); // Manda ACK = 1
-				printf("Recebi corretamente : %s \n", buffer);
+				if ( (strcmp(ack_recebido, "1") == 0) && (sum == sum_recebido) ){
+					tp_sendto(udp_socket, "1", sizeof("1"), &server); // Manda ACK = 1
+					printf("Recebi corretamente : %s \n", buffer);
+				}
 			}
 			else{
+				sent = tp_sendto(udp_socket, "0", sizeof("0"), &server); // Manda ACK = 0
 				timeouts++;
 			}
 			}while(((total_recebido == -1) || (strcmp(ack_recebido, "1") != 0) || (sum != sum_recebido)) &&  timeouts<=max_timeouts);
@@ -257,6 +262,8 @@ int main(int argc, char **argv){
 	}while((total_recebido != tam_cabecalho) && timeouts<=max_timeouts);
 
 	printf("Foram recebidos, %d bytes!! \n", tam_arquivo);
+	printf("Numero de timeouts: %d \n\n", timeouts);
+
 	//fecha o arquivo
 	fclose(arq);
 

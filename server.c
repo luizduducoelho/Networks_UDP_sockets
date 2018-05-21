@@ -33,9 +33,9 @@ char checksum(char* s, int total_lido ){
 	{	
 		sum += *s;
 		s++;
-		printf("Checksummmmmmmmmmmmm: %c %d\n    ",sum, sum);   //, %d", sum, atoi(sum));
+		//printf("Checksummmmmmmmmmmmm: %c %d\n    ",sum, sum);   //, %d", sum, atoi(sum));
 		i++;
-		printf("i < total_lido: %d < %d \n", i, total_lido);
+		//printf("i < total_lido: %d < %d \n", i, total_lido);
 	}
 	return sum;
 }
@@ -75,12 +75,12 @@ int main(int argc, char * argv[]){
 
 	// From
 	so_addr cliente; 
-	char nome_do_arquivo[256];
-	char pacote_com_nome[256];
-	char ack_recebido[2];
+	char nome_do_arquivo[256] = { 0 };
+	char pacote_com_nome[256] = { 0 };
+	char ack_recebido[2] = { 0 };
 	int count;
-	char sum;
-	char sum_recebido;
+	char sum = '\0';
+	char sum_recebido = '\0';
 
 	// Inicializa temporizacao
 	struct timeval tv;
@@ -93,13 +93,15 @@ int main(int argc, char * argv[]){
 	// Rebebe um buffer com nome do arquivo 
 	do {
 		count = tp_recvfrom(udp_socket, pacote_com_nome, sizeof(nome_do_arquivo), &cliente);
-		//extrai a substring com o nome do arquivo, sem o ACK
-		sum_recebido = extract_checksum(pacote_com_nome);
-		extract_packet(pacote_com_nome, ack_recebido, sum_recebido, nome_do_arquivo);
-		printf("Nome recebido: %s \n", nome_do_arquivo);
-		sum = checksum(nome_do_arquivo, strlen(nome_do_arquivo));
-		printf("Sum : %c %d \n", sum, sum);
-		printf("sum_recebido : %c %d \n", sum_recebido, sum_recebido);
+		if (count > 0){
+			//extrai a substring com o nome do arquivo, sem o ACK
+			sum_recebido = extract_checksum(pacote_com_nome);
+			extract_packet(pacote_com_nome, ack_recebido, sum_recebido, nome_do_arquivo);
+			printf("Nome recebido: %s \n", nome_do_arquivo);
+			sum = checksum(nome_do_arquivo, strlen(nome_do_arquivo));
+			printf("Sum : %c %d \n", sum, sum);
+			printf("sum_recebido : %c %d \n", sum_recebido, sum_recebido);
+		}
 
 	}while((count == -1) || (sum != sum_recebido));
 
@@ -127,7 +129,7 @@ int main(int argc, char * argv[]){
 	}
 	int total_lido;
 	int tam_dados = tam_buffer-tam_cabecalho;
-	char dados[tam_dados]; 
+	char dados[tam_dados];
 	printf("ack%s \n",ack);
 
 	//rotina stop-and-wait
