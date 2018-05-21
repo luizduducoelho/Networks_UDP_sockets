@@ -107,7 +107,7 @@ int main(int argc, char * argv[]){
 
 	// Aguardando ACK do nome do arquivo
 	int tam_cabecalho = 2;
-	char buffer[tam_buffer];
+	char *buffer = calloc(tam_buffer, sizeof (*buffer));
 	char ack[] = "0";
 	do {
 		tp_sendto(udp_socket, ack, sizeof(ack), &cliente); // Manda ACK = 0
@@ -129,7 +129,7 @@ int main(int argc, char * argv[]){
 	}
 	int total_lido;
 	int tam_dados = tam_buffer-tam_cabecalho;
-	char dados[tam_dados];
+	char *dados = calloc(tam_dados, sizeof (*dados));
 	printf("ack%s \n",ack);
 
 	//rotina stop-and-wait
@@ -138,7 +138,7 @@ int main(int argc, char * argv[]){
 		sum = checksum(dados, total_lido);
 		//printf("DADOS :%s, sizeof: %zu \n", dados, sizeof(dados));
 		//printf("SUM before create, = %d \n", sum );
-		create_packet(ack, dados, sum, buffer, total_lido);
+		//create_packet(ack, dados, sum, buffer, total_lido);
 		//printf("buffer:%s\n",buffer);
 		//printf("ack:%s\n", ack);
 
@@ -148,6 +148,7 @@ int main(int argc, char * argv[]){
 
 		if(ack[0]=='0'){
 			do {
+				create_packet(ack, dados, sum, buffer, total_lido);
 				tp_sendto(udp_socket, buffer, total_lido + tam_cabecalho, &cliente); // Manda pacote de dados 0
 				printf("Aguardando ACK = %s ....... \n",ack);
 				count = tp_recvfrom(udp_socket, ack_recebido, sizeof(ack_recebido), &cliente);  // Espera ACK = 0
@@ -159,6 +160,7 @@ int main(int argc, char * argv[]){
 			}
 		else if(ack[0]=='1'){
 			do {
+				create_packet(ack, dados, sum, buffer, total_lido);
 				printf("Enviando um buffer: %s, sizeof: %zu, strlen: %zu \n", buffer, sizeof(buffer), strlen(buffer));
 				tp_sendto(udp_socket, buffer, total_lido + tam_cabecalho, &cliente); // Manda pacote de dados 1
 				printf("Aguardando ACK = %s ....... \n",ack);

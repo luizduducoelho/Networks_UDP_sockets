@@ -152,7 +152,7 @@ int main(int argc, char **argv){
 	// Envia nome do arquivo
 	int total_recebido;
 	int sent;
-	char buffer[tam_buffer];
+	char *buffer = calloc(tam_buffer, sizeof (*buffer));
 	do {
 		printf("Envia nome_do_arquivo ......\n");
 		tp_sendto(udp_socket, nome_do_arquivo_pkg, strlen(nome_do_arquivo_pkg)+1, &server);
@@ -177,7 +177,7 @@ int main(int argc, char **argv){
 	// Recebe os dados por Stop and Wait
 	int tam_cabecalho = 2;
 	int tam_dados = tam_buffer-tam_cabecalho;
-	char dados[tam_dados];
+	char *dados = calloc(tam_dados, sizeof (*dados));
 	int total_gravado; //recebe o numero em bytes do que foi gravado no arquivo em cada iteracao
 	int tam_arquivo = 0; 
 	char ack_esperado[] = "0";
