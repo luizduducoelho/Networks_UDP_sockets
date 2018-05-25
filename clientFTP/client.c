@@ -138,7 +138,6 @@ int main(int argc, char **argv){
 	char sum_recebido = '\0';
 	sum = checksum(nome_do_arquivo, strlen(nome_do_arquivo));
 	
-	create_packet(ack, nome_do_arquivo, sum, nome_do_arquivo_pkg);
 	//printf("Sum : %c %d \n", sum, sum);
 	//printf("Nome de nome_do_arquivo_pkg: %s\n, tamanho: %zu, strlen: %zu \n", nome_do_arquivo_pkg, sizeof(nome_do_arquivo_pkg), strlen(nome_do_arquivo_pkg));
 
@@ -155,6 +154,7 @@ int main(int argc, char **argv){
 	char *buffer = calloc(tam_buffer, sizeof (*buffer));
 	do {
 		printf("Envia nome_do_arquivo ......\n");
+		create_packet(ack, nome_do_arquivo, sum, nome_do_arquivo_pkg);
 		tp_sendto(udp_socket, nome_do_arquivo_pkg, strlen(nome_do_arquivo_pkg)+1, &server);
 		total_recebido = tp_recvfrom(udp_socket, buffer, tam_buffer, &server);  // Esperando ACK = 0
 	}while ((total_recebido == -1) || buffer[0] != '0');
