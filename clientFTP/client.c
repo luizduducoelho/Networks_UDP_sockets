@@ -252,7 +252,7 @@ int main(int argc, char **argv){
 	//FECHA O ARQUIVO
 	fclose(arq);
 	gettimeofday(&t2, 0);	
-	float tempo = (t2.tv_sec - t1.tv_sec) * 1000; //s para ms
+	int tempo = (t2.tv_sec - t1.tv_sec) * 1000; //s para ms
 	tempo += (t2.tv_usec - t1.tv_usec) / 1000; 
 	float taxa = tam_arquivo/tempo;
 
