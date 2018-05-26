@@ -140,6 +140,8 @@ int main(int argc, char **argv){
 	if(setsockopt(udp_socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))<0){
 		perror("Error setsockopt\n");}
 
+	struct timeval t1, t2;
+	gettimeofday(&t1, 0);
 	// ENVIA NOME DO ARQUIVO
 	int total_recebido;
 	int sent;
@@ -249,8 +251,13 @@ int main(int argc, char **argv){
 
 	//FECHA O ARQUIVO
 	fclose(arq);
+	gettimeofday(&t2, 0);	
+	float tempo = (t2.tv_sec - t1.tv_sec) * 1000; //s para ms
+	tempo += (t2.tv_usec - t1.tv_usec) / 1000; 
+	float taxa = tam_arquivo/tempo;
 
 	// LIBERA OS PONTEIROS ALOCADOS
+	printf("Buffer = %i byte(s), %fkbps (%i bytes em %i ms)", tam_buffer, taxa, tam_arquivo, tempo);
 	free(nome_do_arquivo_pkg);
 	free(nome_do_arquivo);
 	free(nome_do_servidor);
